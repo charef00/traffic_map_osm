@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interactive Map Routes</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        #map { height: 100vh; }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+    var map = L.map('map').setView([31.6295, -7.9811], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    var lastClickedLayer; // Variable to store the last clicked layer
+
+    // Function to define actions for each feature
+    function onEachFeature(feature, layer) {
+        // Check if the feature has a property 'id' and is of geometry type 'LineString'
+        if (feature.geometry.type === 'LineString' && feature.properties && feature.properties.id) {
+            layer.bindPopup('Route ID: ' + feature.properties.id);
+
+            layer.on('click', function() {
+                // Reset the last clicked layer style if it exists
+                if (lastClickedLayer) {
+                    lastClickedLayer.setStyle({ color: 'black' }); // Reset to default
+                }
+                // Change the color of the clicked layer to red
+                this.setStyle({ color: 'red' });
+                // Open the popup
+                this.openPopup();
+                // Set this layer as the last clicked layer
+                lastClickedLayer = this;
+            });
+        }
+    }
+
+    // Function to load and apply styles to GeoJSON data
+    function loadGeoJson() {
+        fetch('/geojson') // Replace with the path to your GeoJSON data
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, {
+                    style: function(feature) {
+                        // Use different colors depending on the feature type
+                        return feature.geometry.type === 'LineString' ? {color: 'black'} : {color: '#3388ff'};
+                    },
+                    onEachFeature: onEachFeature // Apply the event handlers for each feature
+                }).addTo(map);
+            })
+            .catch(err => console.error('Error loading the GeoJSON data:', err));
+    }
+
+    loadGeoJson(); // Call the function to load GeoJSON data
+</script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+body { 
+    display: flex; 
+    flex-direction: column;
+    margin: 0;
+}
+#menu {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: #333;
+    color: #fff;
+    padding: 10px 0;
+    text-align: center;
+    z-index: 1000;
+}
+#map-container { 
+    display: flex; 
+    flex-grow: 1; 
+    height: calc(100vh - 40px);
+    margin-top: 40px;
+}
+#map { 
+    height: 100%; 
+    width: 80%; 
+}
+#sidebar { 
+    height: 100%; 
+    width: 20%; 
+    overflow-y: auto; 
+    background-color: #f0f0f0; 
+    padding: 20px; 
+}
+.route-item { 
+    margin-bottom: 10px; 
+    cursor: pointer; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+}
+.route-item button { 
+    cursor: pointer; 
+}

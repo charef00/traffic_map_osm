@@ -1,46 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Interactive Map Routes</title>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Map Routes</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <style>
-        body { 
-            display: flex;
-            margin: 0; /* Remove default margin */
-        }
-        #map { 
-            height: 100vh; 
-            width: 80%; 
-            float: left; /* Ensure map and sidebar align correctly */
-        }
-        #sidebar { 
-            position: fixed; /* Fix the sidebar's position */
-            height: 100vh; /* Set the height to fill the viewport */
-            width: 20%; /* Sidebar takes up 20% of viewport width */
-            overflow-y: auto; /* Enable vertical scrolling */
-            background-color: #f0f0f0; 
-            padding-top: 10px; 
-            padding-bottom: 10px; 
-            right: 0; /* Align the sidebar to the right */
-            top: 0; /* Align the sidebar to the top */
-        }
-        .route-item { 
-            margin-bottom: 10px; 
-            cursor: pointer; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-        }
-        .route-item button { 
-            cursor: pointer; 
-        }
-    </style>
+    <link rel="stylesheet" href="style.css"> <!-- Link to the external CSS file -->
 </head>
 <body>
-<div id="map"></div>
-<div id="sidebar"></div>
+<div id="menu">
+    <button onclick="downloadGeneratedData(true)">Download with Data</button>
+    <button onclick="downloadGeneratedData(false)">Download Empty Data</button>
+    <button onclick="updateSimulationLinkState()">Simulation Link</button>
+ 
+</div>
+<div id="map-container">
+    <div id="map"></div>
+    <div id="sidebar"></div>
+</div>
 
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script src="mapScript.js"></script>

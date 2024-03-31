@@ -1,3 +1,6 @@
+
+
+
 var map = L.map('map').setView([31.6295, -7.9811], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
@@ -5,6 +8,46 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 var lastClickedLayer;
 var routeLayers = {};
+// In your mapScript.js or embedded <script> tag
+function updateSimulationLinkState() 
+{
+    // Dynamically create the URL with the query string
+    const simulationUrl = `sim.html`;
+    // Redirect the browser to the simulation URL
+    window.location.href = simulationUrl;
+    
+}
+
+// Function to generate random data for each route ID, with a flag to fill or empty the data array
+function generateDataForRoutes(fillData) {
+    const sidebarItems = document.querySelectorAll('.route-item');
+    const routesData = Array.from(sidebarItems).map(item => {
+        const id = item.textContent.replace('Route ID: ', '');
+        const data = fillData ? Array.from({ length: 100 }, () => 5 * (Math.floor(Math.random() * 11) + 1)) : [];
+        return {
+            id: id,
+            Data: data
+        };
+    });
+
+    return routesData;
+}
+
+// Function to trigger download of the generated data as a JSON file
+function downloadGeneratedData(fillData = true) {
+    const data = generateDataForRoutes(fillData);
+    if (data.length === 0) {
+        alert("No route data available to download.");
+        return;
+    }
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "routesData.json");
+    document.body.appendChild(downloadAnchorNode); // Required for Firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+}
 
 function onEachFeature(feature, layer) {
     if (feature.geometry.type === 'LineString' && feature.properties && feature.properties.id) {
@@ -84,5 +127,8 @@ function highlightRoute(id, deferDisplay = false) {
     }
     addToSidebar(id, deferDisplay); // Add to sidebar if not already present
 }
+// Initial call to set the correct state when the page loads
 
 loadGeoJson();
+
+

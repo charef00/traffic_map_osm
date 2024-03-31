@@ -33,21 +33,58 @@ function generateDataForRoutes(fillData) {
     return routesData;
 }
 
-// Function to trigger download of the generated data as a JSON file
 function downloadGeneratedData(fillData = true) {
-    const data = generateDataForRoutes(fillData);
-    if (data.length === 0) {
-        alert("No route data available to download.");
-        return;
-    }
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "routesData.json");
-    document.body.appendChild(downloadAnchorNode); // Required for Firefox
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
+    // First, attempt to delete the existing routesData.json
+    fetch('/delete-routes-data', { method: 'DELETE' })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to delete existing data.');
+            }
+            console.log('Existing data deleted successfully.');
+            return; // Proceed to the next then() for generating data
+        })
+        .then(() => {
+            // Proceed to generate new data
+            const data = generateDataForRoutes(fillData);
+            if (data.length === 0) {
+                alert("No route data available to download.");
+                return;
+            }
+            // For downloading the data
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "routesData.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+
+            // For saving the data to the server
+            return fetch('/save-routes-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to save data on the server.');
+            }
+            return response.text();
+        })
+        .then(message => {
+            console.log(message);
+            alert("New data saved successfully.");
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("Failed to prepare or save new data.");
+        });
 }
+
+
 
 function onEachFeature(feature, layer) {
     if (feature.geometry.type === 'LineString' && feature.properties && feature.properties.id) {

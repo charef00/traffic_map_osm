@@ -5,8 +5,25 @@ const { DOMParser } = require('xmldom');
 const multer  = require('multer');
 const path = require('path');
 const app = express();
+const bodyParser = require('body-parser');
 const port = 3000;
 
+
+
+
+
+app.use(bodyParser.json()); 
+// Endpoint to save routesData.json
+app.post('/save-routes-data', (req, res) => {
+    const data = req.body;
+    fs.writeFile('routesData.json', JSON.stringify(data, null, 2), 'utf8', (err) => {
+        if (err) {
+            console.error("Error writing the file:", err);
+            return res.status(500).send("Error writing the file.");
+        }
+        res.send("File saved successfully.");
+    });
+});
 // Define storage options for multer
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
@@ -24,8 +41,6 @@ const storage = multer.diskStorage({
     }
 });
 
-// Initialize multer with the defined storage options
-const upload = multer({ storage: storage });
 
 // Serve static files from the 'public' directory
 app.use(express.static('public'));
@@ -42,6 +57,27 @@ app.get('/geojson', (req, res) => {
         const xmlDoc = new DOMParser().parseFromString(xmlData, "application/xml");
         const geoJson = osmtogeojson(xmlDoc);
         res.json(geoJson);
+    });
+});
+// Endpoint to delete routesData.json
+app.delete('/delete-routes-data', (req, res) => {
+    const filePath = path.join(__dirname, 'routesData.json'); // Adjust the path as needed
+
+    // Check if the file exists
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+        if (err) {
+            console.log("File does not exist, no need to delete.");
+            return res.status(200).send("File does not exist, no need to delete.");
+        }
+
+        // If the file exists, proceed with deletion
+        fs.unlink(filePath, (unlinkErr) => {
+            if (unlinkErr) {
+                console.error("Error deleting the file:", unlinkErr);
+                return res.status(500).send("Error deleting the file.");
+            }
+            res.send("File deleted successfully.");
+        });
     });
 });
 app.get('/routesData', (req, res) => {

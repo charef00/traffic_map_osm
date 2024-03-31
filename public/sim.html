@@ -5,8 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulation Page</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+    <style>
+        .legend {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        
+        .legend h3 {
+            margin-top: 0;
+        }
+        
+        .legend ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .legend ul li {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .color-box {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border: 1px solid #888;
+        }
+        </style>
+        
 </head>
 <body>
+    <div class="legend">
+        <h3>Speed Legend</h3>
+        <ul>
+            <li><span class="color-box" style="background-color: #5cd65c;"></span>40 - 60 km/h (Green)</li>
+            <li><span class="color-box" style="background-color: #ffff4d;"></span>20 - 40 km/h (Yellow)</li>
+            <li><span class="color-box" style="background-color: #ff6666;"></span>10 - 20 km/h (Orange)</li>
+            <li><span class="color-box" style="background-color: #b30000;"></span>Below 10 km/h (Red)</li>
+        </ul>
+    </div>
+    
     <div id="map" style="height: 90vh; width: 100%;"></div>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="script.js"></script> <!-- Your script to handle simulation -->

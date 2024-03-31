@@ -1,7 +1,8 @@
 var ourRoutes;
 var currentIndex = 0;
 var dashOffset=0;
-var lastValue=-1;
+var changeCondition=0;
+var MaxTime=10 ;
 function loadRoutesData() {
     fetch('routesData') // Adjust URL as necessary
         .then(response => response.json())
@@ -34,13 +35,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 // Variable to store the GeoJSON layer for easy removal and re-addition
 var geoJsonLayer;
-var geoJsonDash;
+
 // Draw routes with solid lines based on traffic conditions
 function drawSolidLines(geoJsonData) {
-    // Remove previous GeoJSON layer if it exists
-    if (geoJsonLayer) {
-        map.removeLayer(geoJsonLayer);
-    }
     geoJsonLayer = L.geoJSON(geoJsonData, {
         style: function(feature) {
             const speed = getSpeed(feature.properties.id+"x", currentIndex);
@@ -66,10 +63,7 @@ function drawSolidLines(geoJsonData) {
 
 // Draw dashed lines to represent cars on top of the solid lines
 function drawDashedLines(geoJsonData) {
-    if (geoJsonDash) {
-        map.removeLayer(geoJsonDash);
-    }
-    geoJsonDash =L.geoJSON(geoJsonData, {
+    L.geoJSON(geoJsonData, {
         style: function(feature) {
             // Assuming cars should be represented with black dashed lines
             return { color: 'black', weight: 2, dashArray: '10, 30',dashOffset: dashOffset.toString() };
@@ -84,29 +78,22 @@ function drawDashedLines(geoJsonData) {
     }).addTo(map);
 }
 
-async function loadAndDrawRoutes() 
-{
-    await fetch('/geojson')
+function loadAndDrawRoutes() {
+    fetch('/geojson')
         .then(response => response.json())
-        .then(geoJsonData => 
-        {
-            
-            if(lastValue<currentIndex)
-            {
-                
-                //First, draw the routes with solid lines based on traffic conditions
-                drawSolidLines(geoJsonData);
-                lastValue=currentIndex;
+        .then(geoJsonData => {
+            // Remove previous GeoJSON layer if it exists
+            if (geoJsonLayer) {
+                map.removeLayer(geoJsonLayer);
             }
+
+            // First, draw the routes with solid lines based on traffic conditions
+            drawSolidLines(geoJsonData);
+
             // Then, draw dashed lines on top of the solid lines to represent cars
-            drawDashedLines(geoJsonData);
-            
+           drawDashedLines(geoJsonData);
         })
         .catch(err => console.error('Error loading the GeoJSON data:', err));
-
-        dashOffset-=2;
-        setTimeout(loadAndDrawRoutes, 150);
-       
 }
 
 // Utility function to generate random color
@@ -123,11 +110,18 @@ function getColorForSpeed(speed) {
 }
 
 // Call the function to load and draw routes as soon as the script runs
-
 loadAndDrawRoutes();
+
 // Update routes with random colors every 500 milliseconds
 setInterval(() => {
-    currentIndex++;
-    currentIndex = (currentIndex + 1) % 100;
-}, 20000); 
+    changeCondition++;
+    if(changeCondition>=MaxTime)
+    {
+        currentIndex++;
+        currentIndex = (currentIndex + 1) % 100;
+        changeCondition=0;
+    }
+    dashOffset-=3;
+    loadAndDrawRoutes(); // Re-draw routes with the next speed value
+}, 1000); // Adjust the interval as needed
 

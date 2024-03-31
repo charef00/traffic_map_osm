@@ -107,7 +107,7 @@ function loadGeoJson() {
                 style: function(feature) {
                     if(feature.geometry.type === 'LineString')
                     {
-                        return {color: '#999'};
+                        return {color: '#999',weight: 6};
                     }else
                     {
                         return {color: '#3388ff'};
